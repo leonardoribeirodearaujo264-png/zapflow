@@ -51,6 +51,7 @@ CREATE TABLE IF NOT EXISTS agents (
 -- Conversations
 CREATE TABLE IF NOT EXISTS conversations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  workspace_id UUID REFERENCES workspaces(id) ON DELETE CASCADE,
   instance_id UUID REFERENCES instances(id) ON DELETE CASCADE,
   contact_phone TEXT NOT NULL,
   contact_name TEXT,
@@ -186,7 +187,7 @@ CREATE POLICY "Users can manage own agents" ON agents
 
 -- Conversations policies
 CREATE POLICY "Users can manage own conversations" ON conversations
-  FOR ALL USING (instance_id IN (SELECT id FROM instances WHERE workspace_id IN (SELECT get_user_workspace_ids())));
+  FOR ALL USING (workspace_id IN (SELECT get_user_workspace_ids()));
 
 -- Messages policies
 CREATE POLICY "Users can manage own messages" ON messages

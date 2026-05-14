@@ -64,11 +64,20 @@ export default function AgentsPage() {
 
   useEffect(() => {
     const init = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      const { data: ws } = await supabase.from("workspaces").select("id").eq("owner_id", user.id).single()
-      if (ws) { setWorkspaceId(ws.id); await fetchData(ws.id) }
-      setLoading(false)
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+        const { data: ws } = await supabase
+          .from("workspaces")
+          .select("id")
+          .eq("owner_id", user.id)
+          .single()
+        if (ws) { setWorkspaceId(ws.id); await fetchData(ws.id) }
+      } catch (err) {
+        console.error("Agents init error:", err)
+      } finally {
+        setLoading(false)
+      }
     }
     init()
   }, [fetchData, supabase])

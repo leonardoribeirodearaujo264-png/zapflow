@@ -3,30 +3,39 @@ import { MessageSquare, Smartphone, Bot, DollarSign, Calendar, TrendingUp, Activ
 import { formatCurrency, formatDateTime } from "@/lib/utils"
 
 async function getDashboardData(workspaceId: string) {
-  const supabase = await createClient()
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  try {
+    const supabase = await createClient()
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
 
-  const [instances, agents, messages, payments, events] = await Promise.all([
-    supabase.from("instances").select("*").eq("workspace_id", workspaceId),
-    supabase.from("agents").select("*").eq("workspace_id", workspaceId),
-    supabase.from("messages").select("id, direction, created_at, is_ai_response")
+    const [instances, agents, payments, events] = await Promise.all([
+      supabase.from("instances").select("*").eq("workspace_id", workspaceId),
+      supabase.from("agents").select("*").eq("workspace_id", workspaceId),
+      supabase.from("asaas_payments").select("*").eq("workspace_id", workspaceId)
+        .order("created_at", { ascending: false }).limit(5),
+      supabase.from("calendar_events").select("*").eq("workspace_id", workspaceId)
+        .gte("start_time", new Date().toISOString())
+        .order("start_time", { ascending: true }).limit(5),
+    ])
+
+    // Messages: filtered via conversations → instances → workspace (RLS)
+    // Only count today's inbound messages; fallback to empty if query fails
+    const messagesRes = await supabase
+      .from("messages")
+      .select("id, direction, created_at, is_ai_response")
       .eq("direction", "inbound")
       .gte("created_at", today.toISOString())
-      .limit(100),
-    supabase.from("asaas_payments").select("*").eq("workspace_id", workspaceId)
-      .order("created_at", { ascending: false }).limit(5),
-    supabase.from("calendar_events").select("*").eq("workspace_id", workspaceId)
-      .gte("start_time", new Date().toISOString())
-      .order("start_time", { ascending: true }).limit(5),
-  ])
+      .limit(100)
 
-  return {
-    instances: instances.data ?? [],
-    agents: agents.data ?? [],
-    messages: messages.data ?? [],
-    payments: payments.data ?? [],
-    events: events.data ?? [],
+    return {
+      instances: instances.data ?? [],
+      agents: agents.data ?? [],
+      messages: messagesRes.data ?? [],
+      payments: payments.data ?? [],
+      events: events.data ?? [],
+    }
+  } catch {
+    return { instances: [], agents: [], messages: [], payments: [], events: [] }
   }
 }
 

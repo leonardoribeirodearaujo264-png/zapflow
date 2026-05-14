@@ -5,6 +5,7 @@ import { Calendar as CalendarIcon, Plus, Loader2, ExternalLink, Clock } from "lu
 import { createClient } from "@/lib/supabase/client"
 import { formatDateTime } from "@/lib/utils"
 import { cn } from "@/lib/utils"
+import { useToast } from "@/components/ui/toast"
 
 export default function CalendarPage() {
   const [events, setEvents] = useState<Record<string, unknown>[]>([])
@@ -23,6 +24,7 @@ export default function CalendarPage() {
   })
 
   const supabase = createClient()
+  const { toast } = useToast()
 
   const fetchData = useCallback(async (wsId: string) => {
     const [eventsRes, oauthRes] = await Promise.all([
@@ -37,11 +39,20 @@ export default function CalendarPage() {
 
   useEffect(() => {
     const init = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      const { data: ws } = await supabase.from("workspaces").select("id").eq("owner_id", user.id).single()
-      if (ws) { setWorkspaceId(ws.id); await fetchData(ws.id) }
-      setLoading(false)
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+        const { data: ws } = await supabase
+          .from("workspaces")
+          .select("id")
+          .eq("owner_id", user.id)
+          .single()
+        if (ws) { setWorkspaceId(ws.id); await fetchData(ws.id) }
+      } catch (err) {
+        console.error("Calendar init error:", err)
+      } finally {
+        setLoading(false)
+      }
     }
     init()
   }, [fetchData, supabase])
@@ -70,8 +81,9 @@ export default function CalendarPage() {
       setShowEventModal(false)
       setEventForm({ title: "", description: "", startDateTime: "", endDateTime: "", attendeeEmail: "" })
       if (workspaceId) await fetchData(workspaceId)
+      toast("Evento criado com sucesso!")
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Erro")
+      toast(err instanceof Error ? err.message : "Erro ao criar evento", "error")
     } finally {
       setCreating(false)
     }

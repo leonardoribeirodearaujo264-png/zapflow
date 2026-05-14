@@ -38,18 +38,23 @@ export default function InstancesPage() {
 
   useEffect(() => {
     const init = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      const { data: ws } = await supabase
-        .from("workspaces")
-        .select("id")
-        .eq("owner_id", user.id)
-        .single()
-      if (ws) {
-        setWorkspaceId(ws.id)
-        await fetchInstances(ws.id)
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+        const { data: ws } = await supabase
+          .from("workspaces")
+          .select("id")
+          .eq("owner_id", user.id)
+          .single()
+        if (ws) {
+          setWorkspaceId(ws.id)
+          await fetchInstances(ws.id)
+        }
+      } catch (err) {
+        console.error("Instances init error:", err)
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
     init()
   }, [fetchInstances, supabase])

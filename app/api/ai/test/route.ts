@@ -1,22 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
-import { callAI } from "@/lib/ai/router"
 import { AIConfig } from "@/types"
 
 export async function POST(req: NextRequest) {
   try {
     const { provider, apiKey } = await req.json()
 
-    // Temporarily override env for test
-    const originalKey =
-      provider === "gemini"
-        ? process.env.GEMINI_API_KEY
-        : provider === "openai"
-        ? process.env.OPENAI_API_KEY
-        : process.env.ANTHROPIC_API_KEY
-
-    if (provider === "gemini") process.env.GEMINI_API_KEY = apiKey
-    else if (provider === "openai") process.env.OPENAI_API_KEY = apiKey
-    else process.env.ANTHROPIC_API_KEY = apiKey
+    if (!provider || !apiKey) {
+      return NextResponse.json({ ok: false, error: "Provider e apiKey são obrigatórios" }, { status: 400 })
+    }
 
     const config: AIConfig = {
       provider,
@@ -31,15 +22,46 @@ export async function POST(req: NextRequest) {
       maxTokens: 50,
     }
 
-    await callAI(config, [{ role: "user", content: "Responda apenas: OK" }])
+    const testMessage = [{ role: "user" as const, content: "Responda apenas: OK" }]
 
-    // Restore original
-    if (provider === "gemini") process.env.GEMINI_API_KEY = originalKey
-    else if (provider === "openai") process.env.OPENAI_API_KEY = originalKey
-    else process.env.ANTHROPIC_API_KEY = originalKey
+    if (provider === "gemini") {
+      const { GoogleGenerativeAI } = await import("@google/generative-ai")
+      const genAI = new GoogleGenerativeAI(apiKey)
+      const model = genAI.getGenerativeModel({
+        model: config.model,
+        systemInstruction: config.systemPrompt,
+        generationConfig: { temperature: 0.5, maxOutputTokens: 50 },
+      })
+      const chat = model.startChat({ history: [] })
+      await chat.sendMessage("Responda apenas: OK")
+    } else if (provider === "openai") {
+      const OpenAI = (await import("openai")).default
+      const openai = new OpenAI({ apiKey })
+      await openai.chat.completions.create({
+        model: config.model,
+        messages: [
+          { role: "system", content: config.systemPrompt },
+          ...testMessage.map((m) => ({ role: m.role, content: m.content })),
+        ],
+        max_tokens: 50,
+      })
+    } else if (provider === "claude") {
+      const Anthropic = (await import("@anthropic-ai/sdk")).default
+      const anthropic = new Anthropic({ apiKey })
+      await anthropic.messages.create({
+        model: config.model,
+        system: config.systemPrompt,
+        messages: testMessage,
+        max_tokens: 50,
+      })
+    } else {
+      return NextResponse.json({ ok: false, error: "Provider desconhecido" }, { status: 400 })
+    }
 
     return NextResponse.json({ ok: true })
-  } catch {
-    return NextResponse.json({ ok: false })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Erro desconhecido"
+    console.error("AI test error:", message)
+    return NextResponse.json({ ok: false, error: message })
   }
 }

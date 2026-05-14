@@ -61,6 +61,7 @@ export async function POST(req: NextRequest) {
         const { data: newConv } = await supabase
           .from("conversations")
           .insert({
+            workspace_id: instance.workspace_id,
             instance_id: instance.id,
             contact_phone: contactPhone,
             contact_name: contactName,

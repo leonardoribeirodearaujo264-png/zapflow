@@ -1,10 +1,11 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { Plus, DollarSign, Users, FileText, Loader2, CreditCard, Trash2, RefreshCw, ExternalLink } from "lucide-react"
+import { Plus, DollarSign, Users, FileText, Loader2, CreditCard, RefreshCw } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { cn } from "@/lib/utils"
+import { useToast } from "@/components/ui/toast"
 
 type AsaasTab = "dashboard" | "customers" | "payments" | "settings"
 
@@ -36,6 +37,7 @@ export default function AsaasPage() {
   })
 
   const supabase = createClient()
+  const { toast } = useToast()
 
   const fetchData = useCallback(async (wsId: string) => {
     const [customersRes, paymentsRes, settingsRes] = await Promise.all([
@@ -53,11 +55,20 @@ export default function AsaasPage() {
 
   useEffect(() => {
     const init = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      const { data: ws } = await supabase.from("workspaces").select("id").eq("owner_id", user.id).single()
-      if (ws) { setWorkspaceId(ws.id); await fetchData(ws.id) }
-      setLoading(false)
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+        const { data: ws } = await supabase
+          .from("workspaces")
+          .select("id")
+          .eq("owner_id", user.id)
+          .single()
+        if (ws) { setWorkspaceId(ws.id); await fetchData(ws.id) }
+      } catch (err) {
+        console.error("Asaas init error:", err)
+      } finally {
+        setLoading(false)
+      }
     }
     init()
   }, [fetchData, supabase])
@@ -76,7 +87,9 @@ export default function AsaasPage() {
         })
       }
       if (workspaceId) await fetchData(workspaceId)
-      alert("Configurações salvas!")
+      toast("Configurações do Asaas salvas!")
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Erro ao salvar configurações", "error")
     } finally {
       setSavingSettings(false)
     }
@@ -84,7 +97,7 @@ export default function AsaasPage() {
 
   const handleCreateCustomer = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!asaasSettings) { alert("Configure sua API Asaas primeiro!"); return }
+    if (!asaasSettings) { toast("Configure sua API Asaas primeiro nas Configurações", "warning"); return }
     setCreating(true)
     try {
       const res = await fetch("/api/asaas/customers", {
@@ -92,12 +105,14 @@ export default function AsaasPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ workspaceId, ...customerForm }),
       })
-      if (!res.ok) throw new Error("Erro ao criar cliente")
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? "Erro ao criar cliente")
       setShowCustomerModal(false)
       setCustomerForm({ name: "", email: "", phone: "", cpfCnpj: "" })
       if (workspaceId) await fetchData(workspaceId)
+      toast("Cliente criado com sucesso!")
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Erro")
+      toast(err instanceof Error ? err.message : "Erro ao criar cliente", "error")
     } finally {
       setCreating(false)
     }
@@ -105,7 +120,7 @@ export default function AsaasPage() {
 
   const handleCreatePayment = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!asaasSettings) { alert("Configure sua API Asaas primeiro!"); return }
+    if (!asaasSettings) { toast("Configure sua API Asaas primeiro nas Configurações", "warning"); return }
     setCreating(true)
     try {
       const res = await fetch("/api/asaas/payments", {
@@ -113,12 +128,14 @@ export default function AsaasPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ workspaceId, ...paymentForm, value: parseFloat(paymentForm.value) }),
       })
-      if (!res.ok) throw new Error("Erro ao criar cobrança")
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? "Erro ao criar cobrança")
       setShowPaymentModal(false)
       setPaymentForm({ customerId: "", billingType: "PIX", value: "", dueDate: "", description: "" })
       if (workspaceId) await fetchData(workspaceId)
+      toast("Cobrança criada com sucesso!")
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Erro")
+      toast(err instanceof Error ? err.message : "Erro ao criar cobrança", "error")
     } finally {
       setCreating(false)
     }

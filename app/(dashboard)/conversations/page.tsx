@@ -42,12 +42,12 @@ export default function ConversationsPage() {
 
   const supabase = createClient()
 
-  const fetchConversations = useCallback(async (wsId: string) => {
+  const fetchConversations = useCallback(async (_wsId: string) => {
+    // RLS already filters conversations to the user's own workspace via instance ownership
     const { data } = await supabase
       .from("conversations")
       .select("*, instances(name), agents(name, provider)")
-      .eq("instances.workspace_id", wsId)
-      .order("last_message_at", { ascending: false })
+      .order("last_message_at", { ascending: false, nullsFirst: false })
       .limit(50)
     setConversations((data as Conversation[]) ?? [])
   }, [supabase])
@@ -67,14 +67,23 @@ export default function ConversationsPage() {
 
   useEffect(() => {
     const init = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      const { data: ws } = await supabase.from("workspaces").select("id").eq("owner_id", user.id).single()
-      if (ws) {
-        setWorkspaceId(ws.id)
-        await fetchConversations(ws.id)
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+        const { data: ws } = await supabase
+          .from("workspaces")
+          .select("id")
+          .eq("owner_id", user.id)
+          .single()
+        if (ws) {
+          setWorkspaceId(ws.id)
+          await fetchConversations(ws.id)
+        }
+      } catch (err) {
+        console.error("Conversations init error:", err)
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
     init()
   }, [fetchConversations, supabase])

@@ -6,15 +6,20 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params
-  const supabase = await createClient()
-  const { data: instance } = await supabase.from("instances").select("*").eq("id", id).single()
+  try {
+    const { id } = await params
+    const supabase = await createClient()
+    const { data: instance } = await supabase.from("instances").select("*").eq("id", id).single()
 
-  if (!instance) {
-    return NextResponse.json({ error: "Instância não encontrada" }, { status: 404 })
+    if (!instance) {
+      return NextResponse.json({ error: "Instância não encontrada" }, { status: 404 })
+    }
+
+    const client = new UazAPIClient({ baseUrl: instance.base_url, token: instance.token })
+    const data = await client.connect(instance.name)
+    return NextResponse.json(data)
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Erro ao conectar instância"
+    return NextResponse.json({ error: message }, { status: 500 })
   }
-
-  const client = new UazAPIClient({ baseUrl: instance.base_url, token: instance.token })
-  const data = await client.connect(instance.name)
-  return NextResponse.json(data)
 }
