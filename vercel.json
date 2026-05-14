@@ -1,0 +1,18 @@
+{
+  "framework": "nextjs",
+  "regions": ["gru1"],
+  "functions": {
+    "app/api/webhook/uazapi/route.ts": {
+      "maxDuration": 30
+    },
+    "app/api/webhook/asaas/route.ts": {
+      "maxDuration": 30
+    },
+    "app/api/ai/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/ai/test/route.ts": {
+      "maxDuration": 30
+    }
+  }
+}

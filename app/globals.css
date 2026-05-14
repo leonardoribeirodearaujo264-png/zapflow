@@ -1,0 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+:root {
+  --bg-primary: #080B0F;
+  --bg-secondary: #0D1117;
+  --bg-tertiary: #161B22;
+  --bg-card: rgba(13, 17, 23, 0.8);
+  --accent-primary: #00FF88;
+  --accent-hover: #00CC6A;
+  --accent-glow: rgba(0, 255, 136, 0.15);
+  --accent-glow-strong: rgba(0, 255, 136, 0.3);
+  --text-primary: #E6EDF3;
+  --text-secondary: #8B949E;
+  --text-muted: #484F58;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-active: rgba(0, 255, 136, 0.3);
+  --status-green: #3FB950;
+  --status-yellow: #D29922;
+  --status-red: #F85149;
+  --status-blue: #58A6FF;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'IBM Plex Sans', sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 { font-family: 'Sora', sans-serif; }
+code, pre { font-family: 'JetBrains Mono', monospace; }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-secondary); }
+::-webkit-scrollbar-thumb { background: var(--bg-tertiary); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+::selection { background: var(--accent-glow-strong); color: var(--accent-primary); }
+
+.glass-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  box-shadow: 0 0 0 1px var(--border), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes rotate-gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.qr-border {
+  background: linear-gradient(270deg, #00FF88, #00CC6A, #00FF88);
+  background-size: 200% 200%;
+  animation: rotate-gradient 2s ease infinite;
+  padding: 3px;
+  border-radius: 12px;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in { animation: fade-in 0.3s ease forwards; }
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-secondary) 50%, var(--bg-tertiary) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.status-pulse { animation: pulse-dot 2s ease-in-out infinite; }
