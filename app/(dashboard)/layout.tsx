@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import { Sidebar } from "@/components/sidebar"
 import { Header } from "@/components/header"
 import { ToastProvider } from "@/components/ui/toast"
+import { SidebarProvider } from "@/components/sidebar-context"
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -14,15 +15,17 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <ToastProvider>
-      <div className="min-h-screen bg-[#080B0F]">
-        <Sidebar />
-        <div className="ml-60 flex flex-col min-h-screen">
-          <Header />
-          <main className="flex-1 p-6">
-            {children}
-          </main>
+      <SidebarProvider>
+        <div className="flex h-screen bg-[#070B10] overflow-hidden">
+          <Sidebar />
+          <div className="flex flex-col flex-1 overflow-hidden min-w-0">
+            <Header />
+            <main className="flex-1 overflow-y-auto overflow-x-hidden p-8">
+              {children}
+            </main>
+          </div>
         </div>
-      </div>
+      </SidebarProvider>
     </ToastProvider>
   )
 }
