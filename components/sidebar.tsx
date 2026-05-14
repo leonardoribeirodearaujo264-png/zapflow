@@ -64,12 +64,11 @@ export function Sidebar() {
                 <Link
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-3 rounded-lg text-[15px] font-medium transition-all duration-200",
+                    "flex items-center gap-3 rounded-lg text-[15px] font-medium transition-all duration-200 py-[10px] pr-5",
                     isActive
-                      ? "border-l-2 border-[#00FF88] bg-[rgba(0,255,136,0.08)] text-[#00FF88]"
-                      : "text-[#8B949E] hover:bg-[rgba(255,255,255,0.05)] hover:text-[#E6EDF3]"
+                      ? "border-l-2 border-[#00FF88] bg-[rgba(0,255,136,0.08)] text-[#00FF88] pl-[18px]"
+                      : "text-[#8B949E] hover:bg-[rgba(255,255,255,0.05)] hover:text-[#E6EDF3] pl-5"
                   )}
-                  style={{ padding: isActive ? "10px 20px 10px 18px" : "10px 20px" }}
                 >
                   <Icon className="h-5 w-5 shrink-0" />
                   {item.label}
@@ -84,8 +83,7 @@ export function Sidebar() {
       <div className="border-t border-[rgba(255,255,255,0.06)] p-3">
         <button
           onClick={handleSignOut}
-          className="flex w-full items-center gap-3 rounded-lg text-[15px] font-medium text-[#8B949E] hover:bg-[#F85149]/10 hover:text-[#F85149] transition-all duration-200"
-          style={{ padding: "10px 20px" }}
+          className="flex w-full items-center gap-3 rounded-lg text-[15px] font-medium text-[#8B949E] hover:bg-[#F85149]/10 hover:text-[#F85149] transition-all duration-200 py-[10px] px-5"
         >
           <LogOut className="h-5 w-5 shrink-0" />
           Sair

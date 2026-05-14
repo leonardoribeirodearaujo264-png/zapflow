@@ -166,7 +166,7 @@ export default function ConversationsPage() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-4rem-3rem)] rounded-xl border border-[rgba(255,255,255,0.08)] overflow-hidden fade-in">
+    <div className="flex flex-1 min-h-0 rounded-xl border border-[rgba(255,255,255,0.08)] overflow-hidden fade-in">
       {/* Sidebar - Lista de Conversas */}
       <div className="w-80 shrink-0 flex flex-col border-r border-[rgba(255,255,255,0.06)] bg-[rgba(13,17,23,0.8)]">
         {/* Search */}
