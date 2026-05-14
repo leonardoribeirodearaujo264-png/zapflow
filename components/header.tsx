@@ -21,13 +21,13 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[rgba(255,255,255,0.06)] bg-[#080B0F]/90 backdrop-blur-sm px-6">
+    <header className="sticky top-0 z-30 flex items-center justify-between border-b border-[rgba(255,255,255,0.06)] bg-[#080B0F]/90 backdrop-blur-sm" style={{ padding: "24px 24px 16px" }}>
       <div>
-        <h1 className="text-base font-semibold text-[#E6EDF3]" style={{ fontFamily: "'Sora', sans-serif" }}>
+        <h1 className="text-lg font-semibold text-[#E6EDF3] leading-tight" style={{ fontFamily: "'Sora', sans-serif" }}>
           {page.title}
         </h1>
         {page.description && (
-          <p className="text-xs text-[#484F58]">{page.description}</p>
+          <p className="text-sm text-[#8B949E] mt-1">{page.description}</p>
         )}
       </div>
 
