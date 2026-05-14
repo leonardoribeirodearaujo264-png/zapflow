@@ -14,9 +14,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <ToastProvider>
-      <div className="h-screen bg-[#080B0F]">
+      <div className="h-screen bg-[#080B0F] overflow-hidden">
         <Sidebar />
-        <div className="ml-60 flex flex-col h-screen overflow-hidden">
+        <div
+          className="flex flex-col h-screen overflow-hidden"
+          style={{ marginLeft: "240px", width: "calc(100% - 240px)" }}
+        >
           <Header />
           <main className="flex-1 overflow-y-auto p-6">
             {children}

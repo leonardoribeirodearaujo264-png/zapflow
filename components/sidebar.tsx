@@ -38,7 +38,7 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="fixed left-0 top-0 z-40 h-screen w-60 flex flex-col border-r border-[rgba(255,255,255,0.06)] bg-[#0D1117]">
+    <aside className="fixed left-0 top-0 z-40 h-screen flex flex-col border-r border-[rgba(255,255,255,0.06)] bg-[#0D1117]" style={{ width: "240px" }}>
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-5 py-5 border-b border-[rgba(255,255,255,0.06)]">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#00FF88]/10 border border-[#00FF88]/20">
@@ -64,13 +64,13 @@ export function Sidebar() {
                 <Link
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                    "flex items-center gap-3 rounded-lg px-4 py-3 text-base font-medium transition-all duration-200",
                     isActive
-                      ? "border-l-2 border-[#00FF88] bg-[rgba(0,255,136,0.08)] text-[#00FF88] pl-[10px]"
+                      ? "border-l-2 border-[#00FF88] bg-[rgba(0,255,136,0.08)] text-[#00FF88] pl-[14px]"
                       : "text-[#8B949E] hover:bg-[#161B22] hover:text-[#E6EDF3]"
                   )}
                 >
-                  <Icon className="h-4 w-4 shrink-0" />
+                  <Icon className="h-5 w-5 shrink-0" />
                   {item.label}
                 </Link>
               </li>
@@ -83,9 +83,9 @@ export function Sidebar() {
       <div className="border-t border-[rgba(255,255,255,0.06)] p-3">
         <button
           onClick={handleSignOut}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-[#8B949E] hover:bg-[#F85149]/10 hover:text-[#F85149] transition-all duration-200"
+          className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-base font-medium text-[#8B949E] hover:bg-[#F85149]/10 hover:text-[#F85149] transition-all duration-200"
         >
-          <LogOut className="h-4 w-4 shrink-0" />
+          <LogOut className="h-5 w-5 shrink-0" />
           Sair
         </button>
       </div>
