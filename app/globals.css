@@ -21,15 +21,20 @@
   --status-blue: #58A6FF;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
 
 body {
   font-family: 'IBM Plex Sans', sans-serif;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  min-height: 100%;
 }
 
 h1, h2, h3, h4, h5, h6 { font-family: 'Sora', sans-serif; }
